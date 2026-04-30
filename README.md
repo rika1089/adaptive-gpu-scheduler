@@ -1,23 +1,30 @@
 # Adaptive GPU Resource Allocation for Multi-Agent Collaborative Reasoning
 
-Implementation of the paper's Algorithm 1 — priority-weighted demand-proportional
+Implementation of the paper's Algorithm 1 — priority-weighted, demand-proportional
 GPU allocation — evaluated against static and round-robin baselines.
 
 ---
 
 ## Quick Start
 
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
-pip install -e .          # installs adaptive_gpu as a package
+1. **Install dependencies**
 
-# 2. Run a quick smoke test (30s per policy)
-bash scripts/run_simulation.sh --quick
+   ```bash
+   pip install -r requirements.txt
+   pip install -e .          # installs adaptive_gpu as a package
+   ```
 
-# 3. Run the full paper comparison (300s × 3 repeats)
-bash scripts/run_simulation.sh
-```
+2. **Run a quick smoke test (30s per policy)**
+
+   ```bash
+   bash scripts/run_simulation.sh --quick
+   ```
+
+3. **Run the full paper comparison (300s × 3 repeats)**
+
+   ```bash
+   bash scripts/run_simulation.sh
+   ```
 
 Results appear in `output/metrics/` (CSV) and `output/figures/` (PNG charts).
 
@@ -25,8 +32,8 @@ Results appear in `output/metrics/` (CSV) and `output/figures/` (PNG charts).
 
 ## Project Structure
 
-```
-adaptive-gpu-paper/
+```text
+adaptive-gpu-scheduler/
 ├── configs/                    # All experiment parameters (YAML)
 │   ├── agents.yaml             # Agent priorities, min GPU shares, service times
 │   ├── workloads.yaml          # Arrival rates (paper Table 1: 80/40/45/25 req/s)
@@ -38,9 +45,9 @@ adaptive-gpu-paper/
 │   ├── agents/                 # 4 agents: coord, nlp, vision, reasoning
 │   │   └── base_agent.py       # Queue, service simulation, metrics
 │   ├── scheduler/              # THE PAPER'S CORE
-│   │   ├── adaptive_allocator.py  ← Algorithm 1 (demand + priority + min-share)
-│   │   ├── static_allocator.py    ← Baseline 1: equal static share
-│   │   └── round_robin.py         ← Baseline 2: rotating boost share
+│   │   ├── adaptive_allocator.py   # Algorithm 1 (demand + priority + min-share)
+│   │   ├── static_allocator.py     # Baseline 1: equal static share
+│   │   └── round_robin.py          # Baseline 2: rotating boost share
 │   ├── workload/generator.py   # Poisson arrival generator (configurable per agent)
 │   ├── simulation/
 │   │   ├── environment.py      # Worker threads + allocation control loop
@@ -48,12 +55,12 @@ adaptive-gpu-paper/
 │   │   └── gpu_model.py        # GPU share → service time scaling
 │   ├── metrics/                # collector.py, latency, throughput, utilization
 │   ├── evaluation/             # compare_policies.py, summarize.py (plots + tables)
-│   └── deployment/             # Week 3+: DGX / Docker / endpoint clients
+│   └── deployment/             # DGX / Docker / endpoint clients
 │
 ├── experiments/
 │   ├── exp_static_vs_rr_vs_adaptive.py   # Main paper comparison
-│   ├── exp_ablation_priority.py           # Priority weight sensitivity
-│   └── exp_realworld_stub.py              # DGX real-endpoint experiment
+│   ├── exp_ablation_priority.py          # Priority weight sensitivity
+│   └── exp_realworld_stub.py             # DGX real-endpoint experiment
 │
 ├── scripts/
 │   ├── run_simulation.sh       # Run simulation experiment
@@ -70,7 +77,7 @@ adaptive-gpu-paper/
 
 Located in `src/adaptive_gpu/scheduler/adaptive_allocator.py`:
 
-```
+```text
 For each agent i:
     demand_i = (λ_i + α × Q_i) / P_i
 
@@ -90,11 +97,11 @@ share_i = share_i / Σ share_j     (re-normalise)
 
 ## Three Policies Compared
 
-| Policy | Description | Where |
-|--------|-------------|-------|
-| **adaptive** | Algorithm 1 — dynamic, demand-aware | `scheduler/adaptive_allocator.py` |
-| **static** | Equal share (1/N) for all agents, never changes | `scheduler/static_allocator.py` |
-| **round_robin** | Rotating boost share across agents | `scheduler/round_robin.py` |
+| Policy        | Description                                             | Where                            |
+|---------------|---------------------------------------------------------|----------------------------------|
+| **adaptive**  | Algorithm 1 — dynamic, demand-aware                     | `scheduler/adaptive_allocator.py` |
+| **static**    | Equal share (1/N) for all agents, never changes         | `scheduler/static_allocator.py`   |
+| **round_robin** | Rotating boost share across agents                    | `scheduler/round_robin.py`       |
 
 ---
 
@@ -137,9 +144,9 @@ python experiments/exp_realworld_stub.py
 
 ## Agent Configuration (configs/agents.yaml)
 
-| Agent | Priority | Min GPU Share | Base Latency |
-|-------|----------|---------------|-------------|
-| coord | 1 (high) | 10% | 80ms |
-| nlp | 2 (med) | 20% | 120ms |
-| vision | 2 (med) | 20% | 150ms |
-| reasoning | 1 (high) | 30% | 200ms |
+| Agent     | Priority   | Min GPU Share | Base Latency |
+|-----------|------------|---------------|-------------|
+| coord     | 1 (high)   | 10%           | 80ms        |
+| nlp       | 2 (med)    | 20%           | 120ms       |
+| vision    | 2 (med)    | 20%           | 150ms       |
+| reasoning | 1 (high)   | 30%           | 200ms       |
