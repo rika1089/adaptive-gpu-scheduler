@@ -4,6 +4,11 @@ Implementation of the paper's Algorithm 1 — priority-weighted, demand-proporti
 GPU allocation — evaluated against static and round-robin baselines.
 
 ---
+![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![Status](https://img.shields.io/badge/status-active-brightgreen)
+
+---
 
 ## Quick Start
 
