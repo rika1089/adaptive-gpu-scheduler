@@ -13,44 +13,15 @@ GPU allocation — evaluated against static and round-robin baselines.
 
 ```mermaid
 flowchart LR
-    subgraph Workloads["Incoming Requests"]
-        W1["NLP traffic"]
-        W2["Vision traffic"]
-        W3["Reasoning traffic"]
-        W4["Coord traffic"]
-    end
+    Workloads["Incoming LLM Requests"]
+    Agents["LLM Agents<br/>(coord, nlp, vision, reasoning)"]
+    Metrics["Metrics Collector<br/>(λ, Q, latency)"]
+    Scheduler["Adaptive GPU Scheduler<br/>(Algorithm 1)"]
+    GPU["GPU Shares sᵢ(t)<br/>(DGX / node)"]
 
-    subgraph Agents["LLM Agents"]
-        A1["Coordinator"]
-        A2["NLP"]
-        A3["Vision"]
-        A4["Reasoning"]
-    end
-
-    subgraph Scheduler["Adaptive GPU Scheduler"]
-        M["Metrics collector\n(λᵢ, Qᵢ, latency)"]
-        S["Algorithm 1\nAdaptiveAllocator"]
-    end
-
-    subgraph GPU["GPU Pool (DGX / node)"]
-        G["GPU shares sᵢ(t)"]
-    end
-
-    W1 --> A2
-    W2 --> A3
-    W3 --> A4
-    W4 --> A1
-
-    A1 --> M
-    A2 --> M
-    A3 --> M
-    A4 --> M
-
-    M --> S --> G
-    G --> A1
-    G --> A2
-    G --> A3
-    G --> A4
+    Workloads --> Agents --> Metrics --> Scheduler --> GPU
+    GPU --> Agents
+```
 ```
 ---
 ## Quick Start
