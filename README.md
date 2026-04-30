@@ -150,3 +150,8 @@ python experiments/exp_realworld_stub.py
 | nlp       | 2 (med)    | 20%           | 120ms       |
 | vision    | 2 (med)    | 20%           | 150ms       |
 | reasoning | 1 (high)   | 30%           | 200ms       |
+
+
+## Future Work
+
+- Integrate the simulation backend with a web dashboard (FastAPI + Streamlit/Next.js) for interactive visualization of metrics and allocations.
