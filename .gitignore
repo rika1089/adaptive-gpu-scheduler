@@ -1,3 +1,33 @@
-node_modules/ 
-frontend/node_modules/ 
-.next/ 
+# --- Node / Frontend ---
+node_modules/
+frontend/node_modules/
+.next/
+out/
+build/
+dist/
+.env*.local
+
+# --- Python / Backend ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- OS / Misc ---
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# --- Project Specific ---
+output/metrics/*
+output/figures/*
+!output/metrics/.gitkeep
+!output/figures/.gitkeep
