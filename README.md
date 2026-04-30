@@ -22,7 +22,7 @@ flowchart LR
     Workloads --> Agents --> Metrics --> Scheduler --> GPU
     GPU --> Agents
 ```
-```
+
 ---
 ## Quick Start
 
