@@ -1,0 +1,14 @@
+experiment:
+  name: "static_vs_rr_vs_adaptive"
+  description: "Main comparison experiment reproducing paper results"
+  workload: "paper_default"
+  policies:
+    - "adaptive"
+    - "static"
+    - "round_robin"
+  repeats: 3                        # run each policy N times, average results
+  random_seed: 42
+  output_dir: "output/metrics"
+  figures_dir: "output/figures"
+  log_dir: "output/logs"
+  metrics_interval_seconds: 5      # how often to snapshot metrics to CSV

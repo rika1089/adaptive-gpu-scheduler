@@ -1,0 +1,5 @@
+timestamp,policy,coord,nlp,vision,reasoning
+1777535398.904,round_robin,0.55,0.15,0.15,0.15
+1777535399.92,round_robin,0.15,0.55,0.15,0.15
+1777535400.923,round_robin,0.15,0.15,0.15,0.55
+1777535401.929,round_robin,0.15,0.15,0.55,0.15

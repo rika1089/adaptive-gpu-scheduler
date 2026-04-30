@@ -1,0 +1,83 @@
+{
+  "adaptive": {
+    "coord": {
+      "avg_latency_ms": 1139.62,
+      "avg_throughput": 56.929,
+      "avg_gpu_share": 0.4305,
+      "avg_sla_violation": 0.9503
+    },
+    "nlp": {
+      "avg_latency_ms": 1717.81,
+      "avg_throughput": 24.6757,
+      "avg_gpu_share": 0.1574,
+      "avg_sla_violation": 0.9618
+    },
+    "vision": {
+      "avg_latency_ms": 1682.62,
+      "avg_throughput": 20.6537,
+      "avg_gpu_share": 0.1773,
+      "avg_sla_violation": 0.9341
+    },
+    "reasoning": {
+      "avg_latency_ms": 915.19,
+      "avg_throughput": 15.794,
+      "avg_gpu_share": 0.2348,
+      "avg_sla_violation": 0.9368
+    },
+    "_fairness": 0.8972
+  },
+  "static": {
+    "coord": {
+      "avg_latency_ms": 1856.55,
+      "avg_throughput": 43.8873,
+      "avg_gpu_share": 0.25,
+      "avg_sla_violation": 0.9502
+    },
+    "nlp": {
+      "avg_latency_ms": 613.34,
+      "avg_throughput": 29.0063,
+      "avg_gpu_share": 0.25,
+      "avg_sla_violation": 0.8076
+    },
+    "vision": {
+      "avg_latency_ms": 1783.02,
+      "avg_throughput": 23.2847,
+      "avg_gpu_share": 0.25,
+      "avg_sla_violation": 0.9671
+    },
+    "reasoning": {
+      "avg_latency_ms": 1301.96,
+      "avg_throughput": 17.607,
+      "avg_gpu_share": 0.25,
+      "avg_sla_violation": 0.9876
+    },
+    "_fairness": 1.0
+  },
+  "round_robin": {
+    "coord": {
+      "avg_latency_ms": 1566.94,
+      "avg_throughput": 45.081,
+      "avg_gpu_share": 0.2833,
+      "avg_sla_violation": 0.8485
+    },
+    "nlp": {
+      "avg_latency_ms": 1075.4,
+      "avg_throughput": 27.1157,
+      "avg_gpu_share": 0.2833,
+      "avg_sla_violation": 0.8238
+    },
+    "vision": {
+      "avg_latency_ms": 2748.41,
+      "avg_throughput": 21.97,
+      "avg_gpu_share": 0.2833,
+      "avg_sla_violation": 0.9802
+    },
+    "reasoning": {
+      "avg_latency_ms": 1311.9,
+      "avg_throughput": 16.1953,
+      "avg_gpu_share": 0.15,
+      "avg_sla_violation": 0.9799
+    },
+    "_fairness": 0.6757
+  }
+}

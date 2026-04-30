@@ -1,0 +1,12 @@
+{
+  "run_id": "f4e5f071",
+  "workload": "uniform",
+  "duration_seconds": 60,
+  "repeats": 1,
+  "policies": [
+    "adaptive",
+    "static",
+    "round_robin"
+  ],
+  "completed_at": "2026-04-30T14:37:17.077959"
+}

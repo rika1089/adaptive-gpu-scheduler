@@ -1,0 +1,30 @@
+agents:
+  coord:
+    priority: 1          # 1 = highest priority
+    min_gpu_share: 0.10
+    service_time_mean_ms: 80
+    service_time_std_ms: 15
+    description: "Coordinator agent — routes and orchestrates requests"
+
+  nlp:
+    priority: 2
+    min_gpu_share: 0.20
+    service_time_mean_ms: 120
+    service_time_std_ms: 25
+    description: "NLP agent — text summarisation, QA"
+
+  vision:
+    priority: 2
+    min_gpu_share: 0.20
+    service_time_mean_ms: 150
+    service_time_std_ms: 30
+    description: "Vision agent — image captioning, VQA"
+
+  reasoning:
+    priority: 1
+    min_gpu_share: 0.30
+    service_time_mean_ms: 200
+    service_time_std_ms: 40
+    description: "Reasoning agent — logic, multi-step QA"
+
+sla_threshold_ms: 200

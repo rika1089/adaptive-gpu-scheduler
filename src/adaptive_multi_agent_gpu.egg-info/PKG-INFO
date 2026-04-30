@@ -1,0 +1,152 @@
+Metadata-Version: 2.4
+Name: adaptive-multi-agent-gpu
+Version: 0.1.0
+Summary: Paper-first implementation of adaptive GPU resource allocation for multi-agent collaborative reasoning
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# Adaptive GPU Resource Allocation for Multi-Agent Collaborative Reasoning
+
+Implementation of the paper's Algorithm 1 — priority-weighted demand-proportional
+GPU allocation — evaluated against static and round-robin baselines.
+
+---
+
+## Quick Start
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+pip install -e .          # installs adaptive_gpu as a package
+
+# 2. Run a quick smoke test (30s per policy)
+bash scripts/run_simulation.sh --quick
+
+# 3. Run the full paper comparison (300s × 3 repeats)
+bash scripts/run_simulation.sh
+```
+
+Results appear in `output/metrics/` (CSV) and `output/figures/` (PNG charts).
+
+---
+
+## Project Structure
+
+```
+adaptive-gpu-paper/
+├── configs/                    # All experiment parameters (YAML)
+│   ├── agents.yaml             # Agent priorities, min GPU shares, service times
+│   ├── workloads.yaml          # Arrival rates (paper Table 1: 80/40/45/25 req/s)
+│   ├── policies.yaml           # Policy-specific settings
+│   └── experiment_default.yaml # Links all configs for a standard run
+│
+├── src/adaptive_gpu/
+│   ├── config/loader.py        # Typed YAML loading with dataclasses
+│   ├── agents/                 # 4 agents: coord, nlp, vision, reasoning
+│   │   └── base_agent.py       # Queue, service simulation, metrics
+│   ├── scheduler/              # THE PAPER'S CORE
+│   │   ├── adaptive_allocator.py  ← Algorithm 1 (demand + priority + min-share)
+│   │   ├── static_allocator.py    ← Baseline 1: equal static share
+│   │   └── round_robin.py         ← Baseline 2: rotating boost share
+│   ├── workload/generator.py   # Poisson arrival generator (configurable per agent)
+│   ├── simulation/
+│   │   ├── environment.py      # Worker threads + allocation control loop
+│   │   ├── event_loop.py       # Single-run orchestrator
+│   │   └── gpu_model.py        # GPU share → service time scaling
+│   ├── metrics/                # collector.py, latency, throughput, utilization
+│   ├── evaluation/             # compare_policies.py, summarize.py (plots + tables)
+│   └── deployment/             # Week 3+: DGX / Docker / endpoint clients
+│
+├── experiments/
+│   ├── exp_static_vs_rr_vs_adaptive.py   # Main paper comparison
+│   ├── exp_ablation_priority.py           # Priority weight sensitivity
+│   └── exp_realworld_stub.py              # DGX real-endpoint experiment
+│
+├── scripts/
+│   ├── run_simulation.sh       # Run simulation experiment
+│   ├── run_baselines.sh        # Run each policy individually
+│   ├── run_all_experiments.sh  # Run everything
+│   └── launch_all.sh           # DGX: start all 4 vLLM servers
+│
+└── tests/                      # pytest unit + integration tests
+```
+
+---
+
+## Algorithm 1 — Implementation
+
+Located in `src/adaptive_gpu/scheduler/adaptive_allocator.py`:
+
+```
+For each agent i:
+    demand_i = (λ_i + α × Q_i) / P_i
+
+    where:
+      λ_i = arrival rate (req/s) in 10-second sliding window
+      Q_i = current queue backlog
+      α   = 0.5 (queue weight, configurable in policies.yaml)
+      P_i = priority (1=highest, 2=medium — lower value = more resources)
+
+total = Σ demand_i
+share_i = demand_i / total        (proportional)
+share_i = max(share_i, R_i)       (enforce minimum)
+share_i = share_i / Σ share_j     (re-normalise)
+```
+
+---
+
+## Three Policies Compared
+
+| Policy | Description | Where |
+|--------|-------------|-------|
+| **adaptive** | Algorithm 1 — dynamic, demand-aware | `scheduler/adaptive_allocator.py` |
+| **static** | Equal share (1/N) for all agents, never changes | `scheduler/static_allocator.py` |
+| **round_robin** | Rotating boost share across agents | `scheduler/round_robin.py` |
+
+---
+
+## Running Individual Experiments
+
+```bash
+# Single policy, custom workload
+python -m adaptive_gpu.main --policy adaptive --workload burst_nlp --duration 60
+
+# Priority ablation study
+python experiments/exp_ablation_priority.py
+
+# Run all tests
+pytest tests/ -v
+```
+
+---
+
+## DGX Real-World Deployment (Week 3+)
+
+```bash
+# 1. Start all 4 vLLM servers on DGX
+bash scripts/launch_all.sh
+
+# 2. Run real-world experiment (auto-detects live endpoints)
+python experiments/exp_realworld_stub.py
+```
+
+---
+
+## Paper Metrics Reproduced
+
+- Average end-to-end latency per agent (ms)
+- Throughput (requests/second) per agent
+- SLA violation rate (%) — threshold 200ms
+- GPU allocation share over time
+- Jain's Fairness Index across all agents
+
+---
+
+## Agent Configuration (configs/agents.yaml)
+
+| Agent | Priority | Min GPU Share | Base Latency |
+|-------|----------|---------------|-------------|
+| coord | 1 (high) | 10% | 80ms |
+| nlp | 2 (med) | 20% | 120ms |
+| vision | 2 (med) | 20% | 150ms |
+| reasoning | 1 (high) | 30% | 200ms |

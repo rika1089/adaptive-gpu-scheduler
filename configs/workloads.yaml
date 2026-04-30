@@ -1,0 +1,46 @@
+# Request arrival rates (requests/second) — paper's Table 1 workload
+workloads:
+  paper_default:
+    description: "Workload matching paper Table 1 — heterogeneous arrival rates"
+    duration_seconds: 300
+    arrival_rates:
+      coord: 80
+      nlp: 40
+      vision: 45
+      reasoning: 25
+
+  low_load:
+    description: "Low uniform load for baseline verification"
+    duration_seconds: 120
+    arrival_rates:
+      coord: 10
+      nlp: 10
+      vision: 10
+      reasoning: 10
+
+  burst_nlp:
+    description: "NLP burst scenario"
+    duration_seconds: 180
+    arrival_rates:
+      coord: 20
+      nlp: 100
+      vision: 10
+      reasoning: 15
+
+  high_reasoning:
+    description: "Heavy reasoning workload"
+    duration_seconds: 180
+    arrival_rates:
+      coord: 30
+      nlp: 30
+      vision: 20
+      reasoning: 80
+
+  uniform:
+    description: "Equal load across all agents"
+    duration_seconds: 120
+    arrival_rates:
+      coord: 40
+      nlp: 40
+      vision: 40
+      reasoning: 40

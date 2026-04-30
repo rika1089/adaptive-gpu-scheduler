@@ -1,0 +1,12 @@
+{
+  "run_id": "c0276286",
+  "workload": "paper_default",
+  "duration_seconds": 60,
+  "repeats": 1,
+  "policies": [
+    "adaptive",
+    "static",
+    "round_robin"
+  ],
+  "completed_at": "2026-04-30T20:41:18.365322"
+}

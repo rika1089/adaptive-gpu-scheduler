@@ -1,0 +1,17 @@
+policies:
+  adaptive:
+    description: "Priority-weighted demand-proportional allocation (Algorithm 1)"
+    update_interval_seconds: 5
+    arrival_rate_window_seconds: 10
+    queue_weight_alpha: 0.5        # weight of queue backlog vs arrival rate
+    min_share_enforcement: true
+    renormalize: true
+
+  static:
+    description: "Equal static GPU share for all agents"
+    update_interval_seconds: 999999   # never updates
+    share_per_agent: 0.25             # 1/N for N=4
+
+  round_robin:
+    description: "Rotating weighted assignment — each agent served in turn"
+    update_interval_seconds: 1

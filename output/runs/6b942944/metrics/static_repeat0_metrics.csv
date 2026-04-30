@@ -1,0 +1,13 @@
+elapsed_s,policy,workload,agent,queue_length,arrival_rate,avg_latency_ms,throughput,sla_violation_rate,gpu_share,timestamp
+6.01,static,high_reasoning,coord,0,12.3,95.62,20.285,0.0,0.25,1777538458.8915734
+6.01,static,high_reasoning,nlp,0,12.1,156.87,19.62,0.1525,0.25,1777538458.8915823
+6.01,static,high_reasoning,vision,2,8.4,191.36,12.969,0.359,0.25,1777538458.891587
+6.01,static,high_reasoning,reasoning,119,21.8,1497.36,15.796,0.9789,0.25,1777538458.8915908
+11.03,static,high_reasoning,coord,0,24.7,94.07,22.396,0.0,0.25,1777538463.9063933
+11.03,static,high_reasoning,nlp,0,24.7,161.23,22.123,0.168,0.25,1777538463.9063964
+11.03,static,high_reasoning,vision,4,17.4,180.76,15.051,0.2952,0.25,1777538463.906399
+11.03,static,high_reasoning,reasoning,235,42.8,2895.5,17.227,0.9895,0.25,1777538463.9064014
+16.04,static,high_reasoning,coord,0,22.9,93.38,21.757,0.0,0.25,1777538468.9184618
+16.04,static,high_reasoning,nlp,1,25.4,155.52,23.191,0.1452,0.25,1777538468.9184647
+16.04,static,high_reasoning,vision,0,17.3,183.36,15.835,0.3346,0.25,1777538468.918467
+16.04,static,high_reasoning,reasoning,370,44.1,4258.19,17.767,0.993,0.25,1777538468.9184694

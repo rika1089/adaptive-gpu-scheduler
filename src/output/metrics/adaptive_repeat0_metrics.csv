@@ -1,0 +1,5 @@
+elapsed_s,policy,workload,agent,queue_length,arrival_rate,avg_latency_ms,throughput,sla_violation_rate,gpu_share,timestamp
+6.0,adaptive,paper_default,coord,8,23.1,247.29,36.475,0.7534,0.25,1777535392.8416038
+6.0,adaptive,paper_default,nlp,10,16.1,269.42,24.483,0.7007,0.25,1777535392.8416233
+6.0,adaptive,paper_default,vision,20,14.7,526.86,20.486,0.9593,0.25,1777535392.8416364
+6.0,adaptive,paper_default,reasoning,5,10.2,463.7,15.489,0.9892,0.25,1777535392.8416464

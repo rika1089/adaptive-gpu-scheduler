@@ -1,0 +1,9 @@
+elapsed_s,policy,workload,agent,queue_length,arrival_rate,avg_latency_ms,throughput,sla_violation_rate,gpu_share,timestamp
+6.02,round_robin,uniform,coord,2,14.8,136.93,23.576,0.2042,0.15,1777539053.3958287
+6.02,round_robin,uniform,nlp,20,15.1,323.38,21.085,0.6457,0.15,1777539053.3958354
+6.02,round_robin,uniform,vision,30,14.6,1156.81,18.595,0.9643,0.55,1777539053.3958395
+6.02,round_robin,uniform,reasoning,50,13.9,1010.94,14.112,0.9765,0.15,1777539053.395843
+11.04,round_robin,uniform,coord,1,31.6,205.43,28.631,0.3861,0.55,1777539058.4096732
+11.04,round_robin,uniform,nlp,37,30.5,559.37,24.101,0.8271,0.15,1777539058.4096763
+11.04,round_robin,uniform,vision,46,28.0,1506.33,21.02,0.9828,0.15,1777539058.4096792
+11.04,round_robin,uniform,reasoning,113,28.6,1941.0,15.403,0.9882,0.15,1777539058.4096816
