@@ -76,6 +76,16 @@ adaptive-gpu-scheduler/
 └── tests/                      # pytest unit + integration tests
 ```
 
+
+## Agents in the System
+
+| Agent      | Role                          | Priority | Notes                          |
+|-----------|-------------------------------|----------|--------------------------------|
+| 🤝 Coord  | Orchestrates multi-agent calls| High     | Latency-sensitive, small load  |
+| 📝 NLP    | Text reasoning / chat         | Medium   | High QPS, moderate latency     |
+| 👁️ Vision | Image/multimodal reasoning    | Medium   | Heavier, fewer requests        |
+| 🧠 Reason | Complex multi-step reasoning  | High     | Heavy, very latency-sensitive  |
+
 ---
 
 ## Algorithm 1 — Implementation
