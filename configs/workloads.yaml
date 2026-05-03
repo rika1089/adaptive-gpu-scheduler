@@ -4,10 +4,10 @@ workloads:
     description: "Workload matching paper Table 1 — heterogeneous arrival rates"
     duration_seconds: 300
     arrival_rates:
-      coord: 80
-      nlp: 40
-      vision: 45
-      reasoning: 25
+      coord: 25.0
+      nlp: 12.5
+      vision: 15.0
+      reasoning: 7.50
 
   low_load:
     description: "Low uniform load for baseline verification"

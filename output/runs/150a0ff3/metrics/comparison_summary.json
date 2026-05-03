@@ -1,0 +1,29 @@
+{
+  "round_robin": {
+    "coord": {
+      "avg_latency_ms": 27.07,
+      "avg_throughput": 42.7312,
+      "avg_gpu_share": 0.2763,
+      "avg_sla_violation": 0.0
+    },
+    "nlp": {
+      "avg_latency_ms": 40.27,
+      "avg_throughput": 28.9437,
+      "avg_gpu_share": 0.2342,
+      "avg_sla_violation": 0.0
+    },
+    "vision": {
+      "avg_latency_ms": 35.47,
+      "avg_throughput": 30.7394,
+      "avg_gpu_share": 0.2553,
+      "avg_sla_violation": 0.0
+    },
+    "reasoning": {
+      "avg_latency_ms": 59.79,
+      "avg_throughput": 19.4255,
+      "avg_gpu_share": 0.2342,
+      "avg_sla_violation": 0.0
+    },
+    "_fairness": 0.6757
+  }
+}

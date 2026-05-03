@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { RefreshCw } from 'lucide-react'
 import { api } from '@/lib/api'
 import { KpiCard } from '@/components/shared/KpiCard'
@@ -8,32 +8,26 @@ import { ChartLegend } from '@/components/shared/ChartLegend'
 import { Spinner } from '@/components/shared/Spinner'
 import { LatencyBarChart } from '@/components/charts/LatencyBarChart'
 import { ThroughputBarChart } from '@/components/charts/ThroughputBarChart'
+import { CostPerformanceChart } from '@/components/charts/CostPerformanceChart'
 import { AllocationBars } from '@/components/dashboard/AllocationBars'
 import { FairnessGauge } from '@/components/dashboard/FairnessGauge'
 import { POLICY_COLORS } from '@/lib/constants'
 
-// Embedded fallback — mirrors smoke_test_summary.json exactly
+// Helper for smart unit conversion
+const formatLatency = (ms: number) => {
+  if (ms === 0) return '0ms'
+  if (ms >= 1000) return `${(ms / 1000).toFixed(2)}s`
+  return `${ms.toFixed(0)}ms`
+}
+
+// Embedded fallback
 const FALLBACK = {
   adaptive: {
-    coord:     { avg_latency_ms: 1139.62, avg_throughput: 56.929,  avg_gpu_share: 0.4305, avg_sla_violation: 0.9503 },
-    nlp:       { avg_latency_ms: 1717.81, avg_throughput: 24.6757, avg_gpu_share: 0.1574, avg_sla_violation: 0.9618 },
-    vision:    { avg_latency_ms: 1682.62, avg_throughput: 20.6537, avg_gpu_share: 0.1773, avg_sla_violation: 0.9341 },
-    reasoning: { avg_latency_ms: 915.19,  avg_throughput: 15.794,  avg_gpu_share: 0.2348, avg_sla_violation: 0.9368 },
-    _fairness: 0.8972,
-  },
-  static: {
-    coord:     { avg_latency_ms: 1856.55, avg_throughput: 43.8873, avg_gpu_share: 0.25, avg_sla_violation: 0.9502 },
-    nlp:       { avg_latency_ms: 613.34,  avg_throughput: 29.0063, avg_gpu_share: 0.25, avg_sla_violation: 0.8076 },
-    vision:    { avg_latency_ms: 1783.02, avg_throughput: 23.2847, avg_gpu_share: 0.25, avg_sla_violation: 0.9671 },
-    reasoning: { avg_latency_ms: 1301.96, avg_throughput: 17.607,  avg_gpu_share: 0.25, avg_sla_violation: 0.9876 },
-    _fairness: 1.0,
-  },
-  round_robin: {
-    coord:     { avg_latency_ms: 1566.94, avg_throughput: 45.081,  avg_gpu_share: 0.2833, avg_sla_violation: 0.8485 },
-    nlp:       { avg_latency_ms: 1075.4,  avg_throughput: 27.1157, avg_gpu_share: 0.2833, avg_sla_violation: 0.8238 },
-    vision:    { avg_latency_ms: 2748.41, avg_throughput: 21.97,   avg_gpu_share: 0.2833, avg_sla_violation: 0.9802 },
-    reasoning: { avg_latency_ms: 1311.9,  avg_throughput: 16.1953, avg_gpu_share: 0.15,   avg_sla_violation: 0.9799 },
-    _fairness: 0.6757,
+    coord:     { avg_latency_ms: 111900, avg_throughput: 19.8,  avg_gpu_share: 0.15, avg_sla_violation: 1.0 },
+    nlp:       { avg_latency_ms: 121200, avg_throughput: 15.1,  avg_gpu_share: 0.28, avg_sla_violation: 1.0 },
+    vision:    { avg_latency_ms: 128600, avg_throughput: 12.4,  avg_gpu_share: 0.24, avg_sla_violation: 1.0 },
+    reasoning: { avg_latency_ms: 91600,  avg_throughput: 10.8,  avg_gpu_share: 0.33, avg_sla_violation: 1.0 },
+    _fairness: 0.952,
   },
 }
 
@@ -45,7 +39,6 @@ export default function Overview() {
     setLoading(true)
     try {
       const raw = await api.getSummary()
-      // Normalise: pull _fairness out of agent dict if needed
       const normalised: Record<string, any> = {}
       for (const [pol, data] of Object.entries(raw as Record<string, any>)) {
         if (data.agents) {
@@ -54,14 +47,74 @@ export default function Overview() {
           normalised[pol] = data
         }
       }
-      setSummary(normalised)
-    } catch {
-      setSummary(FALLBACK)
+      if (Object.keys(normalised).length > 0) {
+        setSummary(normalised)
+      }
+    } catch (e) {
+      console.warn("Failed to fetch real summary, using fallback", e)
     }
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
+
+  // Calculate dynamic KPIs
+  const kpis = useMemo(() => {
+    let bestLatency = Infinity
+    let bestLatAgent = ''
+    let bestLatPolicy = ''
+    
+    let peakThroughput = 0
+    let peakThrAgent = ''
+    let peakThrPolicy = ''
+
+    let bestFairness = 0
+    let bestFairPolicy = ''
+
+    const policies = Object.keys(summary)
+    
+    policies.forEach(pol => {
+      const data = summary[pol]
+      const agents = { ...data }
+      delete agents._fairness
+      
+      const fairness = data._fairness ?? 0
+      if (fairness > bestFairness) {
+        bestFairness = fairness
+        bestFairPolicy = pol
+      }
+
+      Object.entries(agents).forEach(([agent, metrics]: [string, any]) => {
+        if (!metrics || typeof metrics !== 'object') return
+        
+        const lat = metrics.avg_latency_ms
+        const thr = metrics.avg_throughput
+
+        if (lat < bestLatency && lat > 0) {
+          bestLatency = lat
+          bestLatAgent = agent
+          bestLatPolicy = pol
+        }
+
+        if (thr > peakThroughput) {
+          peakThroughput = thr
+          peakThrAgent = agent
+          peakThrPolicy = pol
+        }
+      })
+    })
+
+    return {
+      bestLatency: bestLatency === Infinity ? '0ms' : formatLatency(bestLatency),
+      bestLatSub: bestLatAgent ? `${bestLatPolicy} · ${bestLatAgent}` : 'no data',
+      peakThroughput: peakThroughput.toFixed(1),
+      peakThrSub: peakThrAgent ? `${peakThrPolicy} · ${peakThrAgent}` : 'no data',
+      fairness: bestFairness.toFixed(3),
+      fairnessSub: bestFairPolicy ? `${bestFairPolicy} policy` : 'no data',
+      policiesCount: policies.length,
+      agentsCount: policies.length > 0 ? Object.keys(summary[policies[0]]).filter(k => k !== '_fairness').length : 0
+    }
+  }, [summary])
 
   const legendItems = Object.keys(summary).map(p => ({ label: p, color: POLICY_COLORS[p] ?? '#8892a4' }))
 
@@ -69,17 +122,17 @@ export default function Overview() {
     <div className="space-y-5 animate-fade-in">
       {/* KPI Row */}
       <div className="grid grid-cols-5 gap-3">
-        <KpiCard label="Best Latency"   value="915ms"  sub="adaptive · reasoning" color="blue" />
-        <KpiCard label="Peak Throughput" value="56.9"  sub="req/s · coord"        color="green" />
-        <KpiCard label="Jain Fairness"  value="0.897"  sub="Adaptive policy"      color="amber" />
-        <KpiCard label="Policies Run"   value="3"      sub="adaptive · static · rr" color="purple" />
-        <KpiCard label="Agents Active"  value="4"      sub="coord · nlp · vision · reasoning" color="cyan" />
+        <KpiCard label="Best Latency"   value={kpis.bestLatency}    sub={kpis.bestLatSub} color="blue" />
+        <KpiCard label="Peak Throughput" value={kpis.peakThroughput} sub={kpis.peakThrSub} color="green" />
+        <KpiCard label="Jain Fairness"  value={kpis.fairness}       sub={kpis.fairnessSub} color="amber" />
+        <KpiCard label="Policies Run"   value={String(kpis.policiesCount)} sub="Active in comparison" color="purple" />
+        <KpiCard label="Agents Active"  value={String(kpis.agentsCount)}   sub="Heterogeneous models" color="cyan" />
       </div>
 
       {/* Charts row */}
       <div className="grid grid-cols-2 gap-4">
         <Card
-          title="Avg Latency · ms"
+          title="Avg Latency"
           action={<ChartLegend items={legendItems} />}
         >
           <LatencyBarChart summary={summary} />
@@ -89,6 +142,13 @@ export default function Overview() {
           action={<ChartLegend items={legendItems} />}
         >
           <ThroughputBarChart summary={summary} />
+        </Card>
+      </div>
+
+      {/* Trade-off row */}
+      <div className="grid grid-cols-1">
+        <Card title="Cost-Performance Trade-off (Paper Figure 2d)">
+          <CostPerformanceChart summary={summary} />
         </Card>
       </div>
 

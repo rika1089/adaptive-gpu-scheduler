@@ -33,13 +33,27 @@ flowchart LR
    pip install -e .          # installs adaptive_gpu as a package
    ```
 
+<<<<<<< HEAD
 2. **Run a quick smoke test (30s per policy)**
+=======
+2. **Run both Backend & Frontend (Single Command)**
+   
+   ```bash
+   python run_app.py
+   ```
+
+3. **Run a quick smoke test (30s per policy)**
+>>>>>>> e84eab1 (Paper exactly replicated now with some UI changes)
 
    ```bash
    bash scripts/run_simulation.sh --quick
    ```
 
+<<<<<<< HEAD
 3. **Run the full paper comparison (300s × 3 repeats)**
+=======
+3. **Run the full paper comparison (100s × 3 repeats)**
+>>>>>>> e84eab1 (Paper exactly replicated now with some UI changes)
 
    ```bash
    bash scripts/run_simulation.sh
@@ -64,7 +78,11 @@ adaptive-gpu-scheduler/
 │   ├── agents/                 # 4 agents: coord, nlp, vision, reasoning
 │   │   └── base_agent.py       # Queue, service simulation, metrics
 │   ├── scheduler/              # THE PAPER'S CORE
+<<<<<<< HEAD
 │   │   ├── adaptive_allocator.py   # Algorithm 1 (demand + priority + min-share)
+=======
+│   │   ├── adaptive_allocator.py   # Algorithm 1: d_i=(λ_i×R_i)/P_i  O(N)
+>>>>>>> e84eab1 (Paper exactly replicated now with some UI changes)
 │   │   ├── static_allocator.py     # Baseline 1: equal static share
 │   │   └── round_robin.py          # Baseline 2: rotating boost share
 │   ├── workload/generator.py   # Poisson arrival generator (configurable per agent)
@@ -104,23 +122,31 @@ adaptive-gpu-scheduler/
 
 ## Algorithm 1 — Implementation
 
-Located in `src/adaptive_gpu/scheduler/adaptive_allocator.py`:
+Located in `src/adaptive_gpu/scheduler/adaptive_allocator.py`.
 
+<<<<<<< HEAD
+=======
+Faithfully implements **Algorithm 1** from the paper (arXiv:2512.22149v1, Section III.C):
+
+>>>>>>> e84eab1 (Paper exactly replicated now with some UI changes)
 ```text
 For each agent i:
-    demand_i = (λ_i + α × Q_i) / P_i
+    d_i = (λ_i × R_i) / P_i
 
     where:
       λ_i = arrival rate (req/s) in 10-second sliding window
-      Q_i = current queue backlog
-      α   = 0.5 (queue weight, configurable in policies.yaml)
-      P_i = priority (1=highest, 2=medium — lower value = more resources)
+      R_i = minimum GPU resource requirement (fraction of total)
+      P_i = priority level (1=high, 2=medium — lower value = more resources)
 
-total = Σ demand_i
-share_i = demand_i / total        (proportional)
-share_i = max(share_i, R_i)       (enforce minimum)
-share_i = share_i / Σ share_j     (re-normalise)
+D_total = Σ d_i
+g_i_prop = (d_i / D_total) × G_total   (proportional share)
+g_i      = max(R_i, g_i_prop)           (enforce minimum — prevent starvation)
+
+If Σ g_i > G_total:
+    g_i = g_i / Σ g_j × G_total        (normalize to capacity)
 ```
+
+Complexity: **O(N)** — enables millisecond-scale real-time reallocation.
 
 ---
 
@@ -173,6 +199,7 @@ python experiments/exp_realworld_stub.py
 
 ## Agent Configuration (configs/agents.yaml)
 
+<<<<<<< HEAD
 | Agent     | Priority   | Min GPU Share | Base Latency |
 |-----------|------------|---------------|-------------|
 | coord     | 1 (high)   | 10%           | 80ms        |
@@ -184,3 +211,15 @@ python experiments/exp_realworld_stub.py
 ## Future Work
 
 - Integrate the simulation backend with a web dashboard (FastAPI + Streamlit/Next.js) for interactive visualization of metrics and allocations.
+=======
+Values match **Paper Table I** exactly (arXiv:2512.22149v1):
+
+| Agent     | Model Size | Base Throughput | Min GPU Share | Priority   |
+|-----------|------------|-----------------|---------------|------------|
+| coord     | 500 MB     | 100 rps (10ms)  | 10%           | 1 (high)   |
+| nlp       | 2000 MB    | 50 rps  (20ms)  | 30%           | 2 (med)    |
+| vision    | 1500 MB    | 60 rps  (16.7ms)| 25%           | 2 (med)    |
+| reasoning | 3000 MB    | 30 rps  (33.3ms)| 35%           | 1 (high)   |
+
+Arrival rates (Paper Table I): coord=80 rps, nlp=40 rps, vision=45 rps, reasoning=25 rps.
+>>>>>>> e84eab1 (Paper exactly replicated now with some UI changes)

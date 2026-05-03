@@ -1,17 +1,19 @@
 policies:
   adaptive:
-    description: "Priority-weighted demand-proportional allocation (Algorithm 1)"
-    update_interval_seconds: 5
-    arrival_rate_window_seconds: 10
-    queue_weight_alpha: 0.5        # weight of queue backlog vs arrival rate
+    description: "Priority-weighted demand-proportional allocation (Algorithm 1, arXiv:2512.22149v1)"
+    update_interval_seconds: 1       # paper: 1-second timesteps (Section IV.B)
+    arrival_rate_window_seconds: 10  # sliding window for λ_i measurement
     min_share_enforcement: true
     renormalize: true
+    # NOTE: queue_weight_alpha is NOT part of the paper's Algorithm 1.
+    # The paper's demand formula is: d_i = (λ_i * R_i) / P_i
+    # The alpha term has been removed from the implementation.
 
   static:
-    description: "Equal static GPU share for all agents"
-    update_interval_seconds: 999999   # never updates
-    share_per_agent: 0.25             # 1/N for N=4
+    description: "Static Equal Allocation — 25% per agent for N=4 (paper baseline)"
+    update_interval_seconds: 999999  # never updates
+    share_per_agent: 0.25            # 1/N for N=4
 
   round_robin:
-    description: "Rotating weighted assignment — each agent served in turn"
-    update_interval_seconds: 1
+    description: "Round-Robin — 100% sequential time-slicing (paper baseline)"
+    update_interval_seconds: 1       # rotates every 1 second

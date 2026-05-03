@@ -24,6 +24,9 @@ def _find_root() -> Path:
 
 PROJECT_ROOT = _find_root()
 
+# CRITICAL: Set sys.path BEFORE any project imports
+if str(PROJECT_ROOT / "src") not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT / "src"))
 # ── Global mutable state (protected by _lock) ────────────────────────────────
 _lock = threading.Lock()
 _current_run: dict = {
@@ -260,6 +263,37 @@ def _run_worker(run_id: str, request: dict) -> None:
                         if item.is_file():
                             shutil.copy2(item, run_output_dir / item.name)
                 _broadcast(f"📂  Run archived to: {run_output_dir}")
+                
+                # ── Generate static figures DIRECTLY in the backend ──
+                try:
+                    from adaptive_gpu.evaluation.summarize import plot_bar_comparison
+                    _broadcast("📊  Generating static figures directly in backend...")
+                    from app.services.parser import parse_comparison_summary
+                    full_summary = parse_comparison_summary("latest")
+                    
+                    # Flatten and SORT for plotting (Strict Paper Order)
+                    PAPER_ORDER = ["static", "round_robin", "adaptive"]
+                    flat_summary = {}
+                    for pol in PAPER_ORDER:
+                        if pol in full_summary:
+                            data = full_summary[pol]
+                            if "agents" in data:
+                                flat_summary[pol] = {**data["agents"], "_fairness": data.get("fairness", 1.0)}
+                            else:
+                                flat_summary[pol] = data
+                    
+                    # Save the master JSON for record-keeping
+                    with open(live_dir / "comparison_summary.json", "w") as f:
+                        json.dump(flat_summary, f, indent=2)
+                        
+                    # Generate PNGs in BOTH locations
+                    for target_fig_dir in ["output/figures", str(run_output_dir.parent / "figures")]:
+                        plot_bar_comparison(flat_summary, figures_dir=str(PROJECT_ROOT / target_fig_dir))
+                    
+                    _broadcast("✅  Static figures successfully updated and archived.")
+                except Exception as e:
+                    _broadcast(f"[Warn] Failed to generate static figures: {e}")
+
             except Exception as e:
                 _broadcast(f"[Warn] Failed to archive run: {e}")
         else:

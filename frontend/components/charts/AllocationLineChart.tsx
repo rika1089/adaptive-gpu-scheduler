@@ -1,6 +1,6 @@
 'use client'
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { AGENT_COLORS } from '@/lib/constants'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { AGENT_COLORS, AGENT_DISPLAY_NAMES } from '@/lib/constants'
 
 interface AllocRow { elapsed_s: number; coord: number; nlp: number; vision: number; reasoning: number; policy: string }
 interface Props { data: AllocRow[]; title?: string }
@@ -16,7 +16,7 @@ export function AllocationLineChart({ data, title }: Props) {
         <YAxis domain={[0, 0.7]} tick={{ fill: '#8892a4', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={v => `${(v * 100).toFixed(0)}%`} width={40} />
         <Tooltip
           contentStyle={{ background: '#1a1f2e', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 11 }}
-          formatter={(v: number, name: string) => [`${(v * 100).toFixed(1)}%`, name]}
+          formatter={(v: number, name: string) => [`${(v * 100).toFixed(1)}%`, AGENT_DISPLAY_NAMES[name] || name]}
         />
         {agents.map(a => (
           <Line key={a} type="monotone" dataKey={a} stroke={AGENT_COLORS[a]} strokeWidth={2} dot={false} />

@@ -1,30 +1,40 @@
+# Agent characteristics — Paper Table I (arXiv:2512.22149v1)
+#
+# service_time_mean_ms is derived from base throughput (rps):
+#   Coordinator:   100 rps → 1000ms / 100 = 10ms  per request
+#   NLP:            50 rps → 1000ms /  50 = 20ms  per request
+#   Vision:         60 rps → 1000ms /  60 = 16.7ms per request
+#   Reasoning:      30 rps → 1000ms /  30 = 33.3ms per request
+#
+# min_gpu_share and priority match Paper Table I exactly.
 agents:
   coord:
-    priority: 1          # 1 = highest priority
-    min_gpu_share: 0.10
-    service_time_mean_ms: 80
-    service_time_std_ms: 15
-    description: "Coordinator agent — routes and orchestrates requests"
+    priority: 1          # 1 = highest priority (Paper Table I)
+    min_gpu_share: 0.10  # 10% minimum (Paper Table I)
+    service_time_mean_ms: 10.0   # 100 rps base throughput (Paper Table I)
+    service_time_std_ms: 2.0
+    description: "Coordinator agent — lightweight orchestrator (500MB model)"
 
   nlp:
-    priority: 2
-    min_gpu_share: 0.20
-    service_time_mean_ms: 120
-    service_time_std_ms: 25
-    description: "NLP agent — text summarisation, QA"
+    priority: 2          # medium priority (Paper Table I)
+    min_gpu_share: 0.30  # 30% minimum (Paper Table I)
+    service_time_mean_ms: 20.0   # 50 rps base throughput (Paper Table I)
+    service_time_std_ms: 4.0
+    description: "NLP Specialist — text summarisation, QA (2000MB model)"
 
   vision:
-    priority: 2
-    min_gpu_share: 0.20
-    service_time_mean_ms: 150
-    service_time_std_ms: 30
-    description: "Vision agent — image captioning, VQA"
+    priority: 2          # medium priority (Paper Table I)
+    min_gpu_share: 0.25  # 25% minimum (Paper Table I)
+    service_time_mean_ms: 16.7   # 60 rps base throughput (Paper Table I)
+    service_time_std_ms: 3.3
+    description: "Vision Specialist — image captioning, VQA (1500MB model)"
 
   reasoning:
-    priority: 1
-    min_gpu_share: 0.30
-    service_time_mean_ms: 200
-    service_time_std_ms: 40
-    description: "Reasoning agent — logic, multi-step QA"
+    priority: 1          # 1 = highest priority (Paper Table I)
+    min_gpu_share: 0.35  # 35% minimum (Paper Table I)
+    service_time_mean_ms: 33.3   # 30 rps base throughput (Paper Table I)
+    service_time_std_ms: 6.7
+    description: "Reasoning Specialist — logic, multi-step QA (3000MB model)"
 
+# SLA threshold — Paper Section IV.A
 sla_threshold_ms: 200

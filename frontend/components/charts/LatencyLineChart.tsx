@@ -1,6 +1,6 @@
 'use client'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { AGENT_COLORS, AGENTS } from '@/lib/constants'
+import { AGENT_COLORS, AGENTS, AGENT_DISPLAY_NAMES } from '@/lib/constants'
 
 interface MetricRow {
   elapsed_s: number
@@ -10,8 +10,12 @@ interface MetricRow {
 
 interface Props { rows: MetricRow[] }
 
+const formatLatency = (ms: number) => {
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`
+  return `${Math.round(ms)}ms`
+}
+
 export function LatencyLineChart({ rows }: Props) {
-  // Pivot: [{elapsed_s, coord, nlp, vision, reasoning}]
   const byTime: Record<number, Record<string, number>> = {}
   for (const row of rows) {
     if (!byTime[row.elapsed_s]) byTime[row.elapsed_s] = { elapsed_s: row.elapsed_s }
@@ -26,11 +30,23 @@ export function LatencyLineChart({ rows }: Props) {
   return (
     <ResponsiveContainer width="100%" height={200}>
       <LineChart data={data}>
-        <XAxis dataKey="elapsed_s" tick={{ fill: '#8892a4', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}s`} />
-        <YAxis tick={{ fill: '#8892a4', fontSize: 10, fontFamily: 'JetBrains Mono' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}ms`} width={50} />
+        <XAxis 
+          dataKey="elapsed_s" 
+          tick={{ fill: '#8892a4', fontSize: 10, fontFamily: 'JetBrains Mono' }} 
+          axisLine={false} 
+          tickLine={false} 
+          tickFormatter={v => `${v}s`} 
+        />
+        <YAxis 
+          tick={{ fill: '#8892a4', fontSize: 10, fontFamily: 'JetBrains Mono' }} 
+          axisLine={false} 
+          tickLine={false} 
+          tickFormatter={formatLatency} 
+          width={50} 
+        />
         <Tooltip
           contentStyle={{ background: '#1a1f2e', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 8, fontFamily: 'JetBrains Mono', fontSize: 11 }}
-          formatter={(v: number, name: string) => [`${v}ms`, name]}
+          formatter={(v: number, name: string) => [formatLatency(v), AGENT_DISPLAY_NAMES[name] || name]}
         />
         {AGENTS.map(a => (
           <Line key={a} type="monotone" dataKey={a} stroke={AGENT_COLORS[a]} strokeWidth={2} dot={false} connectNulls />

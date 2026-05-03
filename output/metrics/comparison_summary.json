@@ -1,29 +1,83 @@
 {
-  "round_robin": {
+  "static": {
     "coord": {
-      "avg_latency_ms": 1681.6,
-      "avg_throughput": 39.9215,
-      "avg_gpu_share": 0.2591,
-      "avg_sla_violation": 0.8747
+      "avg_latency_ms": 3566.3016,
+      "avg_throughput": 18.0342,
+      "avg_gpu_share": 0.25,
+      "avg_sla_violation": 0.9492
     },
     "nlp": {
-      "avg_latency_ms": 772.26,
-      "avg_throughput": 26.6367,
-      "avg_gpu_share": 0.2591,
-      "avg_sla_violation": 0.8616
+      "avg_latency_ms": 3151.9011,
+      "avg_throughput": 9.7157,
+      "avg_gpu_share": 0.25,
+      "avg_sla_violation": 0.9364
     },
     "vision": {
-      "avg_latency_ms": 4429.69,
-      "avg_throughput": 22.3042,
-      "avg_gpu_share": 0.2591,
+      "avg_latency_ms": 2419.3458,
+      "avg_throughput": 11.5861,
+      "avg_gpu_share": 0.25,
+      "avg_sla_violation": 0.9206
+    },
+    "reasoning": {
+      "avg_latency_ms": 4601.1026,
+      "avg_throughput": 6.0935,
+      "avg_gpu_share": 0.25,
+      "avg_sla_violation": 0.9819
+    },
+    "_fairness": 1.0
+  },
+  "round_robin": {
+    "coord": {
+      "avg_latency_ms": 14176.19,
+      "avg_throughput": 6.5994,
+      "avg_gpu_share": 0.2553,
+      "avg_sla_violation": 0.9898
+    },
+    "nlp": {
+      "avg_latency_ms": 17728.78,
+      "avg_throughput": 3.3738,
+      "avg_gpu_share": 0.2553,
+      "avg_sla_violation": 0.9862
+    },
+    "vision": {
+      "avg_latency_ms": 17922.56,
+      "avg_throughput": 4.0376,
+      "avg_gpu_share": 0.2553,
+      "avg_sla_violation": 0.9942
+    },
+    "reasoning": {
+      "avg_latency_ms": 17624.66,
+      "avg_throughput": 2.0284,
+      "avg_gpu_share": 0.2342,
+      "avg_sla_violation": 1.0
+    },
+    "_fairness": 0.6757
+  },
+  "adaptive": {
+    "coord": {
+      "avg_latency_ms": 2314.1463,
+      "avg_throughput": 18.0369,
+      "avg_gpu_share": 0.2188,
+      "avg_sla_violation": 0.9522
+    },
+    "nlp": {
+      "avg_latency_ms": 459.9026,
+      "avg_throughput": 11.1543,
+      "avg_gpu_share": 0.2598,
+      "avg_sla_violation": 0.81
+    },
+    "vision": {
+      "avg_latency_ms": 2753.1411,
+      "avg_throughput": 11.6317,
+      "avg_gpu_share": 0.2165,
       "avg_sla_violation": 0.9907
     },
     "reasoning": {
-      "avg_latency_ms": 2851.42,
-      "avg_throughput": 16.9448,
-      "avg_gpu_share": 0.2227,
-      "avg_sla_violation": 0.9938
+      "avg_latency_ms": 375.54,
+      "avg_throughput": 7.3816,
+      "avg_gpu_share": 0.3049,
+      "avg_sla_violation": 0.7447
     },
-    "_fairness": 0.6757
+    "_fairness": 1.0
   }
 }

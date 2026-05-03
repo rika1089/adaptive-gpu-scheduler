@@ -3,33 +3,37 @@ scheduler/adaptive_allocator.py
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Paper-faithful implementation of Algorithm 1:
   "Adaptive GPU Resource Allocation for Multi-Agent Collaborative Reasoning"
+  arXiv:2512.22149v1
 
-Algorithm 1 (reproduced):
-─────────────────────────
-Input : agent states {λ_i, Q_i, P_i, R_i}  for i in agents
-Output: GPU share allocation {s_i}
+Algorithm 1 (exact reproduction from paper Section III.C):
+──────────────────────────────────────────────────────────
+Input : Agents A, workload W_t, total capacity G_total
+Output: Allocation G_t
 
-1. For each agent i:
-       demand_i = (λ_i + α * Q_i) / P_i
-          where:
-            λ_i = arrival rate (req/s) in recent window
-            Q_i = current queue backlog
-            α   = queue weight (default 0.5)
-            P_i = priority (lower = more important)
+For each agent A_i:
+    d_i = (λ_i(t) * R_i) / P_i          ← demand score
+           where:
+             λ_i = arrival rate (req/s) in recent window
+             R_i = minimum GPU resource requirement (fraction)
+             P_i = priority level (1=high, 2=medium, 3=low)
 
-2. total_demand = Σ demand_i
+D_total = Σ d_i
 
-3. If total_demand == 0:
-       s_i = 1/N  for all i   (equal fallback)
-   Else:
-       s_i = demand_i / total_demand   (proportional)
+If D_total == 0:
+    return G_t = {0, ..., 0}             ← no demand, no allocation
 
-4. Enforce minimum share:
-       s_i = max(s_i, R_i)
+For each agent A_i:
+    g_i_prop = (d_i / D_total) * G_total  ← proportional share
+    g_i(t)   = max(R_i, g_i_prop)         ← enforce minimum
 
-5. Re-normalise so Σ s_i = 1.0
+G_allocated = Σ g_i(t)
 
-6. Return {s_i}
+If G_allocated > G_total:
+    g_i(t) = g_i(t) / G_allocated * G_total  ← normalize
+
+Return G_t
+
+Complexity: O(N)
 """
 from __future__ import annotations
 import time
@@ -48,7 +52,6 @@ class AdaptiveAllocator(AllocationPolicy):
 
     def __init__(self, agents_cfg: AgentsConfig, policies_cfg: PoliciesConfig):
         policy = policies_cfg.get("adaptive")
-        self.alpha = policy.queue_weight_alpha          # queue backlog weight
         self.min_shares: Dict[str, float] = {
             name: cfg.min_gpu_share
             for name, cfg in agents_cfg.agents.items()
@@ -59,29 +62,33 @@ class AdaptiveAllocator(AllocationPolicy):
         }
 
     def allocate(self, agent_states: Dict[str, AgentState]) -> AllocationResult:
-        # ── Step 1: compute demand per agent ──────────────────────────────
+        # ── Step 1: compute demand per agent (Algorithm 1, line 5) ───────────
+        # d_i = (λ_i * R_i) / P_i
         demand: Dict[str, float] = {}
         for name, state in agent_states.items():
-            lam = state.arrival_rate                     # λ_i
-            q   = state.queue_length                     # Q_i
-            p   = self.priorities.get(name, 1)           # P_i  (lower = higher priority)
-            demand[name] = (lam + self.alpha * q) / max(p, 1)
+            lam = state.arrival_rate                     # λ_i  — req/s
+            r   = self.min_shares.get(name, 0.1)        # R_i  — min GPU fraction
+            p   = self.priorities.get(name, 1)           # P_i  — priority level
+            demand[name] = (lam * r) / max(p, 1)
 
-        # ── Step 2: total demand ──────────────────────────────────────────
+        # ── Step 2: total demand (Algorithm 1, line 8) ────────────────────────
         total_demand = sum(demand.values())
 
-        # ── Step 3: proportional allocation or equal fallback ─────────────
+        # ── Step 3: zero-demand guard (Algorithm 1, lines 10-12) ─────────────
         if total_demand <= 0:
             n = len(agent_states)
             shares = {name: 1.0 / n for name in agent_states}
         else:
-            shares = {name: demand[name] / total_demand for name in agent_states}
+            # ── Step 4: proportional allocation (Algorithm 1, lines 14-16) ───
+            shares = {
+                name: max(
+                    self.min_shares.get(name, 0.0),          # enforce R_i floor
+                    (demand[name] / total_demand)            # proportional share
+                )
+                for name in agent_states
+            }
 
-        # ── Step 4: enforce minimum share ─────────────────────────────────
-        for name in shares:
-            shares[name] = max(shares[name], self.min_shares.get(name, 0.0))
-
-        # ── Step 5: re-normalise ──────────────────────────────────────────
+        # ── Step 5: normalize if total exceeds capacity (Algorithm 1, lines 21-24) ──
         shares = self._normalize(shares)
 
         logger.debug(f"Adaptive allocation: {

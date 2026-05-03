@@ -20,7 +20,7 @@ if [[ "$1" == "--quick" ]]; then
     ARGS="--quick"
     echo "  Mode: QUICK (30s per policy, 1 repeat)"
 else
-    echo "  Mode: FULL  (300s per policy, 3 repeats)"
+    echo "  Mode: FULL  (100s per policy, 3 repeats)"
 fi
 
 mkdir -p output/metrics output/figures output/logs output/reports

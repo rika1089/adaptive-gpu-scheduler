@@ -1,0 +1,37 @@
+flowchart LR
+    subgraph Clients["Users & Workload"]
+        U1["User requests\n(NLP, reasoning, vision)"]
+    end
+
+    U1 --> RG["Request Generator\n(configurable arrival rates λᵢ)"]
+
+    subgraph DGX["DGX H200 Node (8× GPU)"]
+        subgraph Agents["LLM Agent Servers"]
+            C["Coordinator\nvLLM/Flask\nport 8001"]
+            N["NLP Agent\nvLLM\nport 8002"]
+            R["Reasoning Agent\nvLLM\nport 8003"]
+            V["Vision Agent\nVLM\nport 8004"]
+        end
+
+        RG --> C
+        RG --> N
+        RG --> R
+        RG --> V
+
+        C --> MC["Metrics Collector\nλᵢ, Qᵢ, latency, throughput"]
+        N --> MC
+        R --> MC
+        V --> MC
+
+        MC --> AA["AdaptiveAllocator\nAlgorithm 1\n(demandᵢ = (λᵢ + α·Qᵢ)/Pᵢ)"]
+
+        AA --> CTRL["Controller\napply GPU shares sᵢ"]
+
+        CTRL --> C
+        CTRL --> N
+        CTRL --> R
+        CTRL --> V
+    end
+
+    CTRL --> API["FastAPI Backend\n/experiments/status"]
+    API --> UI["Next.js Dashboard\nlive metrics & GPU shares"]

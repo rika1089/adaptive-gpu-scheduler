@@ -1,0 +1,40 @@
+@startuml
+skinparam backgroundColor #2B2B2B
+skinparam sequence {
+    ArrowColor #3b82f6
+    LifeLineBorderColor #3b82f6
+    ParticipantBorderColor #10b981
+    ParticipantBackgroundColor #1a1f2e
+    ParticipantFontColor #e8eaf0
+    ActorBorderColor #f59e0b
+    ActorBackgroundColor #1a1f2e
+    ActorFontColor #e8eaf0
+}
+
+actor "User Request" as U
+participant "WorkloadGenerator" as WG
+participant "Agent Queue" as Q
+participant "AdaptiveAllocator" as AA
+participant "GPU Model" as GPU
+participant "MetricsCollector" as MC
+
+== Initialization (100s Window) ==
+WG -> Q: Register Arrival Rates (λ)
+
+== Request Lifecycle ==
+U -> WG: Request Arrives
+WG -> Q: Enqueue Request (FIFO)
+note right: This is where delay builds\nif workers = 1
+
+== Adaptive Scheduling Loop (Every 5s) ==
+AA -> Q: Get Current State (λᵢ, Rᵢ, Pᵢ)
+AA -> AA: Calculate Demand: dᵢ = (λᵢ * Rᵢ) / Pᵢ
+AA -> GPU: Assign New GPU Share (gᵢ)
+
+== Execution ==
+Q -> GPU: Dequeue (1 worker process)
+GPU -> GPU: Simulate Service Time\nscaled by gᵢ
+GPU -> MC: Record Latency & Throughput
+MC -> U: Response Complete
+
+@enduml

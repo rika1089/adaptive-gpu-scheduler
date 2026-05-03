@@ -60,6 +60,8 @@ def parse_args() -> argparse.Namespace:
                    help="Skip matplotlib plot generation")
     p.add_argument("--config-dir", default=None,
                    help="Path to configs directory (default: ./configs)")
+    p.add_argument("--summarize-only", action="store_true",
+                   help="Only generate plots and tables from existing comparison_summary.json")
     return p.parse_args()
 
 
@@ -105,14 +107,23 @@ def main() -> None:
 
     t_start = time.time()
 
-    # ── Run comparison ──────────────────────────────────────────────────────
-    comparison = run_comparison(
-        agents_cfg=agents_cfg,
-        workload_cfg=workload_cfg,
-        policies_cfg=policies_cfg,
-        exp_cfg=exp_cfg,
-        output_dir=exp_cfg.output_dir,
-    )
+    # ── Run comparison or Load existing ─────────────────────────────────────
+    if args.summarize_only:
+        json_path = Path(exp_cfg.output_dir) / "comparison_summary.json"
+        if not json_path.exists():
+            logger.error(f"Cannot summarize: {json_path} not found.")
+            return
+        with open(json_path, "r") as f:
+            comparison = json.load(f)
+        logger.info(f"Loaded existing results from {json_path}")
+    else:
+        comparison = run_comparison(
+            agents_cfg=agents_cfg,
+            workload_cfg=workload_cfg,
+            policies_cfg=policies_cfg,
+            exp_cfg=exp_cfg,
+            output_dir=exp_cfg.output_dir,
+        )
 
     # ── Print results table ─────────────────────────────────────────────────
     print_comparison_table(comparison)
