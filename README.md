@@ -134,3 +134,5 @@ Values match **Paper Table I** exactly (arXiv:2512.22149v1):
 | reasoning | 3000 MB    | 30 rps  (33.3ms)| 35%           | 1 (high)   |
 
 Arrival rates (Paper Fig 2): coord=25 rps, nlp=12.5 rps, vision=15 rps, reasoning=7.5 rps.
+
+thanks
